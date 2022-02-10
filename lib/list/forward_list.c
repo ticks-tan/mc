@@ -6,23 +6,31 @@
 * @Des    : C语言单向链表，只实现存储int数据版本，其他版本类似
 **/
 
-#include "single_list.h"
+#include "forward_list.h"
+
+#ifndef _MC_FORWARD_LIST_TYPE
+#define _MC_FORWARD_LIST_TYPE
+// 链表长度类型
+#define size_type int
+// 链表数据域数据类型
+#define data_type int
+#endif
 
 // 这里方便下文使用链表名称
 #ifndef list_node
-#define list_node    single_list_node
+#define list_node    mc_forward_list_node
 #endif
 #ifndef list
-#define list    single_list
+#define list    mc_forward_list
 #endif
 
 // 这里定义链表操作的函数名
-#ifndef _single_linked_list_func
-#define _single_linked_list_func(name)      $_single_linked_list_func_##name##_$
+#ifndef _forward_linked_list_func
+#define _forward_linked_list_func(name)      $_forward_linked_list_func_##name##_$
 #endif
 
 #ifndef list_func_name
-#define list_func_name(name)       _single_linked_list_func(name)
+#define list_func_name(name)       _forward_linked_list_func(name)
 #endif
 
 list_node*  list_func_name(new_node)(data_type data);
@@ -39,6 +47,8 @@ bool list_func_name(push_all)(list* this, const list* other);
 void list_func_name(clear)(list* this);
 void list_func_name(sort)(list* this);
 void list_func_name(unique)(list* this);
+const list_node*  list_func_name(get_const)(list* this, size_type pos);
+list_node* list_func_name(get)(list* this, size_type pos);
 
 list_node*  list_func_name(get_node)(list* this, size_type pos);
 
@@ -52,7 +62,7 @@ list_node*  list_func_name(get_node)(list* this, size_type pos);
 list_node*  list_func_name(new_node)(data_type data)
 {
     // 调用内存分配函数，分配内存给node
-    list_node* node = (list_node*)mc_zalloc(sizeof(list_node));
+    list_node* node = TO_CAST(list_node*, mc_zalloc(sizeof(list_node)));
     // 初始化node数据
     node->data = data;
     node->next = NULL;
@@ -70,7 +80,7 @@ size_type list_func_name(size)(list* this)
     if (PTR_NOT_NULL(this)){
         return this->_count;
     }
-    return -1;
+    return TO_CAST(size_type, -1);
 }
 
 /**
@@ -108,21 +118,13 @@ bool list_func_name(insert)(list* this, size_type pos, data_type data)
         // 判断是否为空节点
         if (PTR_NULL(p)){
             LOGE("insert internal error!");
+            mc_free(PTR_ADDRESS(node));
             return false;
         }
         // 新节点指向要插入下标的节点
         node->next = p->next;
         // 要插入下标节点前一个节点后继指针指向新节点
         p->next = node;
-
-        /*
-         *  0-1-2-3-4-5-...-(this->_count -1)
-         *  新节点为 p , 要插入到 下标 3
-         *  p->next = 3; 2->next = p;
-         *  0-1-2-3-4-5-....
-         *       p|
-         *  0-1-2-p-3-4-5-...
-         */
     }
     ++this->_count;
     return true;
@@ -356,6 +358,7 @@ void list_func_name(clear)(list* this)
         mc_free(PTR_ADDRESS(del_node));
         del_node = p;
     }
+    this->_head->next = NULL;
     this->_count = 0;
 }
 
@@ -377,6 +380,40 @@ void list_func_name(unique)(list* this)
 
 }
 
+const list_node* list_func_name(get_const)(list* this, size_type pos)
+{
+    if (PTR_NULL(this)){
+        LOGE("get_const on a nullptr pointer!");
+        return NULL;
+    }
+    if (pos < 0 || pos >= this->_count){
+        LOGE("get_const pos over!");
+        return NULL;
+    }
+    list_node* node = list_func_name(get_node)(this, pos);
+    if (node == NULL){
+        LOGE("get_const internal error!");
+    }
+    return TO_CAST(const list_node*, node);
+}
+
+list_node* list_func_name(get)(list* this, size_type pos)
+{
+    if (PTR_NULL(this)){
+        LOGE("get_const on a nullptr pointer!");
+        return NULL;
+    }
+    if (pos < 0 || pos >= this->_count){
+        LOGE("get_const pos over!");
+        return NULL;
+    }
+    list_node* node = list_func_name(get_node)(this, pos);
+    if (node == NULL){
+        LOGE("get_const internal error!");
+    }
+    return node;
+}
+
 /**
  * 获取指定下标节点
  * @param this  : 链表
@@ -390,7 +427,7 @@ list_node*  list_func_name(get_node)(list* this, size_type pos)
     for (; PTR_NOT_NULL(p) && i < pos; ++i){
         p = p->next;
     }
-    return p;
+    return (i == pos)? p : NULL;
 }
 
 
@@ -398,9 +435,9 @@ list_node*  list_func_name(get_node)(list* this, size_type pos)
  * 创建单向链表
  * @return  : 返回新的链表指针
  */
-list*   new_single_list()
+list*   new_mc_forward_list()
 {
-    list* l = (list*)mc_zalloc(sizeof(list));
+    list* l = TO_CAST(list*, mc_zalloc(sizeof(list)));
     l->_count = 0;
     l->_head = list_func_name(new_node)((data_type)0);
 
@@ -418,6 +455,8 @@ list*   new_single_list()
     l->clear =      list_func_name(clear);
     l->sort =       list_func_name(sort);
     l->unique =     list_func_name(unique);
+    l->get_const =  list_func_name(get_const);
+    l->get =        list_func_name(get);
 
     return l;
 }
@@ -427,10 +466,10 @@ list*   new_single_list()
  * @param l : 链表
  * @return
  */
-bool    destroy_single_list(list* l)
+bool    destroy_mc_forward_list(list* l)
 {
     if (PTR_NULL(l)){
-        LOGE("destroy_single_list on a null pointer!");
+        LOGE("destroy_mc_forward_list on a null pointer!");
         return false;
     }
     l->clear(l);
@@ -439,6 +478,13 @@ bool    destroy_single_list(list* l)
     return true;
 }
 
+#ifdef _MC_FORWARD_LIST_TYPE
+#undef _MC_FORWARD_LIST_TYPE
+// 链表长度类型
+#undef size_type
+// 链表数据域数据类型
+#undef data_type
+#endif
 
 // 使用完，取消定义
 #ifdef list

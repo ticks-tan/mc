@@ -6,27 +6,31 @@
 * @Des    : C语言单向链表，只实现存储int数据版本，其他版本类似
 **/
 
-#ifndef MC_SINGLE_LIST_H
-#define MC_SINGLE_LIST_H
+#ifndef MC_FORWARD_LIST_H
+#define MC_FORWARD_LIST_H
 
 #include "tools/mc_malloc.h"
 
+#ifndef _MC_FORWARD_LIST_TYPE
+#define _MC_FORWARD_LIST_TYPE
 // 链表长度类型
-typedef int size_type;
+#define size_type int
 // 链表数据域数据类型
-typedef int data_type;
+#define data_type int
+#endif
+
 // 单向链表结构体别名
-typedef struct single_list   single_list;
+typedef struct mc_forward_list   mc_forward_list;
 // 单向链表节点结构体别名
-typedef struct single_list_node   single_list_node;
+typedef struct mc_forward_list_node   mc_forward_list_node;
 
 
 // 这里方便下文使用链表名称
 #ifndef list_node
-#define list_node    single_list_node
+#define list_node    mc_forward_list_node
 #endif
 #ifndef list
-#define list    single_list
+#define list    mc_forward_list
 #endif
 
 // 单向链表节点定义
@@ -70,12 +74,24 @@ struct list
     void (*sort)(list* this);
     // 删除连续重复元素
     void (*unique)(list* this);
+    // 获取指定下标节点(获取的节点不可修改)
+    const list_node* const (*get_const)(list* this, size_type pos);
+    // 获取指定下标节点，可改变
+    list_node*  (*get)(list* this, size_type pos);
 };
 
 // 创建链表
-list*   new_single_list();
+list*   new_mc_forward_list();
 // 销毁链表
-bool    destroy_single_list(list* l);
+bool    destroy_mc_forward_list(list* l);
+
+#ifdef _MC_FORWARD_LIST_TYPE
+#undef _MC_FORWARD_LIST_TYPE
+// 链表长度类型
+#undef size_type
+// 链表数据域数据类型
+#undef data_type
+#endif
 
 // 使用完，取消定义
 #ifdef list
@@ -86,4 +102,4 @@ bool    destroy_single_list(list* l);
 #undef list_node
 #endif
 
-#endif //MC_SINGLE_LIST_H
+#endif //MC_FORWARD_LIST_H

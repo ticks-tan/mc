@@ -16,9 +16,14 @@ typedef unsigned int bool;
 #define true 1
 #define false 0
 
+// 获取指针地址
 #define PTR_ADDRESS(a)      (void**)(&(a))
+// 指针是否为空
 #define PTR_NULL(p)         (NULL == (p))
+// 指针是否不为空
 #define PTR_NOT_NULL(p)     (NULL != (p))
+// 类型转换
+#define TO_CAST(to_type, type)  ((to_type)(type))
 
 // 错误输出
 // #define LOGE(type) fprintf(stderr,"error in file: %s - %d line at %s ==> %s\n", __FILE__, __LINE__, __TIME__, type)
