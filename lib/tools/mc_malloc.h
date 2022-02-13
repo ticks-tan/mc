@@ -28,7 +28,7 @@ typedef unsigned int bool;
 // 错误输出
 // #define LOGE(type) fprintf(stderr,"error in file: %s - %d line at %s ==> %s\n", __FILE__, __LINE__, __TIME__, type)
 // 查看内存分配情况
-#define Me_MemCheck() fprintf(stdout, "malloc count : %ld, free count : %ld\n", me_malloc_count(), me_free_count())
+#define Mc_MemCheck() fprintf(stdout, "malloc count : %ld, free count : %ld\n", mc_malloc_count(), mc_free_count())
 
 // 内存分配与释放次数
 long mc_malloc_count();

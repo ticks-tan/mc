@@ -1,15 +1,19 @@
 #include <stdio.h>
 
-#include "list/forward_list.h"
-#include "list/list.h"
+#include "queue//queue.h"
 
 int main() {
-    mc_list* list = new_mc_list();
-    for (int i = 0; i < 10; ++i){
-        list->push_back(list, i);
+    mc_queue* q = new_mc_queue();
+    int i = 0;
+    for (; i < 100; ++i){
+        q->push(q, i);
     }
-
-    printf("list's size = %d\n", list->size(list));
-    destroy_mc_list(list);
+    while(!q->empty(q)){
+        printf("queue : %d\n", q->front(q));
+        q->pop(q);
+    }
+    destroy_mc_queue(q);
+    Mc_MemCheck();
     return 0;
 }
+

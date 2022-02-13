@@ -9,4 +9,5 @@ add_executable(mc main.c
         lib/tools/mc_malloc.h   lib/tools/mc_malloc.c
         lib/tools/mc_log.h      lib/tools/mc_log.c
         lib/list/forward_list.h lib/list/forward_list.c
-        lib/list/list.h lib/list/list.c)
+        lib/list/list.h         lib/list/list.c
+        lib/queue/queue.h       lib/queue/queue.c)
