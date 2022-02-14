@@ -1,18 +1,20 @@
 #include <stdio.h>
 
-#include "queue//queue.h"
+#include "stack/stack.h"
 
 int main() {
-    mc_queue* q = new_mc_queue();
+    mc_stack* s = new_mc_stack();
     int i = 0;
-    for (; i < 100; ++i){
-        q->push(q, i);
+    for (; i < 10; ++i){
+        s->push(s, i);
     }
-    while(!q->empty(q)){
-        printf("queue : %d\n", q->front(q));
-        q->pop(q);
+    printf("栈元素个数: %d\n", s->size(s));
+    while (s->empty(s) == false){
+        printf("stack : %d\n", s->top(s));
+        s->pop(s);
     }
-    destroy_mc_queue(q);
+    printf("栈元素个数: %d\n", s->size(s));
+    destroy_mc_stack(s);
     Mc_MemCheck();
     return 0;
 }

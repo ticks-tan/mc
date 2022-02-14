@@ -42,6 +42,11 @@ void queue_func_name(clear)(queue* this);
 
 // impl
 
+/**
+ * 获取队列元素个数
+ * @param this : 队列指针
+ * @return : 元素个数
+ */
 size_type queue_func_name(size)(queue* this)
 {
     if (PTR_NULL(this)){
@@ -51,6 +56,11 @@ size_type queue_func_name(size)(queue* this)
     return this->_tail - this->_head;
 }
 
+/**
+ * 判断队列是否为空
+ * @param this : 队列
+ * @return : 队列是否为空
+ */
 bool queue_func_name(empty)(queue* this)
 {
     if (PTR_NULL(this)){
@@ -60,6 +70,11 @@ bool queue_func_name(empty)(queue* this)
     return (this->_head == this->_tail) ? 1 : 0;
 }
 
+/**
+ * 获取队首元素
+ * @param this : 队列
+ * @return : 队首元素
+ */
 data_type queue_func_name(front)(queue* this)
 {
     if (PTR_NULL(this)){
@@ -73,6 +88,11 @@ data_type queue_func_name(front)(queue* this)
     exit(-1);
 }
 
+/**
+ * 获取队尾元素
+ * @param this : 队列
+ * @return : 队尾元素
+ */
 data_type queue_func_name(back)(queue* this)
 {
     if (PTR_NULL(this)){
@@ -86,6 +106,12 @@ data_type queue_func_name(back)(queue* this)
     exit(-1);
 }
 
+/**
+ * 元素入队
+ * @param this : 队列
+ * @param data : 入队元素值
+ * @return : 是否入队成功
+ */
 bool queue_func_name(push)(queue* this, data_type data)
 {
     if (PTR_NULL(this)){
@@ -122,6 +148,11 @@ bool queue_func_name(push)(queue* this, data_type data)
     return true;
 }
 
+/**
+ * 元素出队
+ * @param this : 队列
+ * @return : 是否出队成功
+ */
 bool queue_func_name(pop)(queue* this)
 {
     if (PTR_NULL(this)){
@@ -136,10 +167,15 @@ bool queue_func_name(pop)(queue* this)
     return true;
 }
 
+/**
+ * 清空队列元素
+ * @param this : 队列
+ */
 void queue_func_name(clear)(queue* this)
 {
     if (PTR_NULL(this)){
         LOGE("queue clear on a nullptr pointer!");
+        return;
     }
     this->_head = this->_tail = 0;
 }
