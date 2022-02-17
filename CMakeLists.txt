@@ -12,4 +12,4 @@ add_executable(mc main.c
         lib/list/list.h         lib/list/list.c
         lib/queue/queue.h       lib/queue/queue.c
         lib/stack/stack.h       lib/stack/stack.c
-        lib/map/map.h lib/map/map.c)
+        lib/map/map.h lib/map/map.c lib/set/set.h lib/set/set.c)

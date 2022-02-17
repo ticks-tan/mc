@@ -1,25 +1,26 @@
 /**
 * @Author : Ticks
-* @File   : skip_list.c
-* @Date   : 2022-02-17 11:51
+* @File   : set.c
+* @Date   : 2022-02-17 16:17
 * @Email  : 2938384958@qq.com
-* Des     : C语言简单map实现
+* Des     : 基于跳表实现简单set
 **/
-#include "map.h"
-#ifndef _MC_MAP_TYPE
-#define _MC_MAP_TYPE
+
+#include "set.h"
+#ifndef _MC_SET_TYPE
+#define _MC_SET_TYPE
 #define data_type int
 #define size_type int
 #endif
 
-#ifndef MC_MAP_DEF
-#define MC_MAP_DEF
+#ifndef MC_SET_DEF
+#define MC_SET_DEF
 #define map        mc_map
 #define map_node   mc_map_node
 #endif
 
 #ifndef _mc_set_func_name
-#define _mc_set_func_name(name)     $_mc_map_func_##name##_$
+#define _mc_set_func_name(name)     $_mc_set_func_##name##_$
 #endif
 #ifndef mc_set_func_name
 #define mc_set_func_name(name)  _mc_set_func_name(name)
@@ -29,31 +30,30 @@
 #define MAX_SKIP_H  16
 
 size_type   mc_set_func_name(random)();
-size_type   mc_set_func_name(size)(map* this);
-bool mc_set_func_name(insert)(map* this, data_type key, data_type value);
-bool mc_set_func_name(erase)(map* this, data_type key);
-map_node* mc_set_func_name(find)(map* this, data_type key);
-void mc_set_func_name(clear)(map* this);
-map_node* mc_set_func_name(new_node)(size_type level, size_type key, size_type value);
+size_type   mc_set_func_name(size)(set* this);
+bool mc_set_func_name(insert)(set* this, data_type key);
+bool mc_set_func_name(erase)(set* this, data_type key);
+set_node* mc_set_func_name(find)(set* this, data_type key);
+void mc_set_func_name(clear)(set* this);
+set_node* mc_set_func_name(new_node)(size_type level, size_type key);
 
 
 // 创建新节点
-map_node* mc_set_func_name(new_node)(size_type level, size_type key, size_type value)
+set_node* mc_set_func_name(new_node)(size_type level, size_type key)
 {
-    map_node* node = TO_CAST(map_node*, mc_zalloc(sizeof(*node) + level * sizeof(map_node)));
+    set_node* node = TO_CAST(set_node*, mc_zalloc(sizeof(*node) + level * sizeof(set_node)));
     node->key = key;
-    node->data = value;
     return node;
 }
 
 // 创建map
-map* new_mc_map()
+set* new_mc_map()
 {
     int i = 0;
-    map* m = TO_CAST(map*, mc_zalloc(sizeof(map)));
+    set* m = TO_CAST(set*, mc_zalloc(sizeof(set)));
     m->_level = 1;
     m->_size = 0;
-    m->_header = mc_set_func_name(new_node)(MAX_SKIP_H, 0, 0);
+    m->_header = mc_set_func_name(new_node)(MAX_SKIP_H, 0);
     for (i = 0; i < MAX_SKIP_H; ++i){
         m->_header->level[i].next = NULL;
     }
@@ -67,13 +67,13 @@ map* new_mc_map()
 }
 
 // 销毁map
-void destroy_map(map* m)
+void destroy_map(set* m)
 {
     if (PTR_NULL(m)){
         LOGE("destroy the map on a nullptr pointer");
         return;
     }
-    map_node* node = m->_header->level[0].next, *next;
+    set_node* node = m->_header->level[0].next, *next;
 
     mc_free(PTR_ADDRESS(m->_header));
     while (node){
@@ -93,7 +93,7 @@ size_type   mc_set_func_name(random)()
     return (ret < MAX_SKIP_H) ? ret : MAX_SKIP_H;
 }
 
-size_type   mc_set_func_name(size)(map* this)
+size_type   mc_set_func_name(size)(set* this)
 {
     if (PTR_NULL(this)){
         LOGE("map size on a nullptr pointer");
@@ -102,13 +102,13 @@ size_type   mc_set_func_name(size)(map* this)
     return this->_size;
 }
 
-bool mc_set_func_name(insert)(map* this, data_type key, data_type value)
+bool mc_set_func_name(insert)(set* this, data_type key)
 {
     if (PTR_NULL(this)){
         LOGE("map insert on a nullptr pointer");
         return false;
     }
-    map_node* pre_nodes[MAX_SKIP_H], *p;    // 要更新的前继节点列表
+    set_node* pre_nodes[MAX_SKIP_H], *p;    // 要更新的前继节点列表
     size_type i, new_level;
     p = this->_header;
     for (i = this->_level - 1; i >= 0; --i){
@@ -117,7 +117,6 @@ bool mc_set_func_name(insert)(map* this, data_type key, data_type value)
         }
         // key相同，不用插入
         if (p->level[i].next && p->level[i].next->key == key){
-            p->level[i].next->data = value;
             return true;
         }
         pre_nodes[i] = p;
@@ -129,7 +128,7 @@ bool mc_set_func_name(insert)(map* this, data_type key, data_type value)
         }
         this->_level = new_level;
     }
-    p = mc_set_func_name(new_node)(new_level, key, value);
+    p = mc_set_func_name(new_node)(new_level, key);
     for (i = 0; i < new_level; ++i){
         p->level[i].next = pre_nodes[i]->level[i].next;
         pre_nodes[i]->level[i].next = p;
@@ -138,13 +137,13 @@ bool mc_set_func_name(insert)(map* this, data_type key, data_type value)
     return true;
 }
 
-bool mc_set_func_name(erase)(map* this, data_type key)
+bool mc_set_func_name(erase)(set* this, data_type key)
 {
     if (PTR_NULL(this)){
         LOGE("map erase on a nullptr pointer");
         return false;
     }
-    map_node* p = this->_header, *pre_node[MAX_SKIP_H];
+    set_node* p = this->_header, *pre_node[MAX_SKIP_H];
     int level = this->_level - 1, i;
     for (i = level; i >= 0; --i){
         while (p->level[i].next && p->level[i].next->key < key){
@@ -172,13 +171,13 @@ bool mc_set_func_name(erase)(map* this, data_type key)
     return false;
 }
 
-map_node* mc_set_func_name(find)(map* this, data_type key)
+set_node* mc_set_func_name(find)(set* this, data_type key)
 {
     if (PTR_NULL(this)){
         LOGE("map find on a nullptr pointer");
         return NULL;
     }
-    map_node* p = this->_header;
+    set_node* p = this->_header;
     int level = this->_level - 1, i;
     for (i = level; i >= 0; --i){
         while (p->level[i].next && p->level[i].next->key < key){
@@ -192,13 +191,13 @@ map_node* mc_set_func_name(find)(map* this, data_type key)
     return NULL;
 }
 
-void mc_set_func_name(clear)(map* this)
+void mc_set_func_name(clear)(set* this)
 {
     if (PTR_NULL(this)){
         LOGE("map clear on a nullptr pointer");
         return;
     }
-    map_node* p = this->_header->level[0].next, *next;
+    set_node* p = this->_header->level[0].next, *next;
     size_type i;
     for (i = 0; i < this->_level; ++i){
         this->_header->level[i].next = NULL;
